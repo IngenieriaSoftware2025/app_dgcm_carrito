@@ -12,3 +12,12 @@ CREATE TABLE clientes (
 );
 
 SELECT *FROM clientes;
+
+CREATE TABLE productos (
+    producto_id SERIAL PRIMARY KEY,
+    producto_nombres VARCHAR(255),
+    producto_decripcion VARCHAR(255),
+    producto_precio DECIMAL(10, 2),
+    producto_cantidad INT,
+    producto_situacion SMALLINT DEFAULT 1
+);

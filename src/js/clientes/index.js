@@ -160,7 +160,7 @@ const buscarClientes = async () => {
 
         const respuesta = await fetch(url, config);
         const datos = await respuesta.json();
-        const { codigo, mensaje, data } = datos
+        const { codigo, mensaje, clientes } = datos
 
         if (codigo == 1) {
 
@@ -173,7 +173,7 @@ const buscarClientes = async () => {
             });
 
             datatable.clear().draw();
-            datatable.rows.add(data).draw();
+            datatable.rows.add(clientes).draw();
 
         } else {
 
@@ -278,7 +278,6 @@ const llenarFormulario = (event) => {
     document.getElementById('cliente_nit').value = datos.nit
     document.getElementById('cliente_telefono').value = datos.telefono
     document.getElementById('cliente_correo').value = datos.correo
-    document.getElementById('usuario_estado').value = datos.estado
     document.getElementById('cliente_fecha').value = datos.fecha
 
     BtnGuardar.classList.add('d-none');

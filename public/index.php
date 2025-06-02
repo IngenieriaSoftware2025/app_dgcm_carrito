@@ -5,6 +5,7 @@ require_once __DIR__ . '/../includes/app.php';
 use MVC\Router;
 use Controllers\AppController;
 use Controllers\ClienteController;
+use Controllers\ProductoController;
 
 $router = new Router();
 $router->setBaseURL('/' . $_ENV['APP_NAME']);
@@ -18,6 +19,13 @@ $router->get('/clientes/buscarAPI', [ClienteController::class, 'buscarAPI']);
 $router->post('/clientes/modificarAPI', [ClienteController::class, 'modificarAPI']);
 $router->get('/clientes/eliminar', [ClienteController::class, 'EliminarAPI']);
 
+
+// Rutas de Productos
+$router->get('/productos', [ProductoController::class, 'index']);
+$router->post('/productos/guardarAPI', [ProductoController::class, 'guardarAPI']);
+$router->get('/productos/buscarAPI', [ProductoController::class, 'buscarAPI']);
+$router->post('/productos/modificarAPI', [ProductoController::class, 'modificarAPI']);
+$router->get('/productos/eliminar', [ProductoController::class, 'EliminarAPI']);
 
 // Comprueba y valida las rutas, que existan y les asigna las funciones del Controlador
 $router->comprobarRutas();
