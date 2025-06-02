@@ -25,8 +25,8 @@
             <div class="card-body p-3">
                 <h3 class="text-center mb-4">CATÁLOGO DE PRODUCTOS</h3>
 
-                <div class="row" id="catalogoProductos">
-                    <!-- Los productos se cargarán aquí dinámicamente -->
+                <div class="row" id="productos_a_listar_en_tienda_js">
+                    <!-- Los productos se cargarán aquí -->
                 </div>
             </div>
         </div>

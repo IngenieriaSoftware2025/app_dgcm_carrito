@@ -15,7 +15,7 @@
                         <div class="row mb-3 justify-content-center">
                             <div class="col-lg-6">
                                 <label for="cliente_nombres" class="form-label">Nombres</label>
-                                <input type="text" class="form-control" id="cliente_nombres" name="cliente_nombres" placeholder="ingrese aca sus nombres">
+                                <input type="text" class="form-control" id="cliente_nombres" name="cliente_nombres" placeholder="Ingrese aca sus nombres">
                             </div>
                             <div class="col-lg-6">
                                 <label for="cliente_apellidos" class="form-label">Apellidos</label>

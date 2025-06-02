@@ -199,7 +199,7 @@ class ClienteController extends ActiveRecord
             try {
 
 
-                $data = Usuarios::find($id);
+                $data = Clientes::find($id);
                 // $data->sincronizar($_POST);
                 $data->sincronizar([
                     'cliente_nombres' => $_POST['cliente_nombres'],

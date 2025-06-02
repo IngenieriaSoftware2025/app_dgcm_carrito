@@ -19,13 +19,15 @@ class TiendaController extends ActiveRecord
 
         try{
             $consultaParaBuscar = "SELECT * FROM productos WHERE producto_situacion = 1 ORDER BY producto_cantidad";
-            $productoBuscar =  self::fetchArray($consultaParaBuscar);
-
+            $productoBuscar =  self::fetchArray($consultaParaBuscar); // Realiza la consulta a la base de datos
+            if(!$productoBuscar){
+                throw new Exception('No se encontraron productos disponibles');
+            }                                       
             http_response_code(200);
             echo json_encode([
                 'codigo' => 1,
                 'mensaje' => 'Exito al obtener Productos',
-                'data' => $productoBuscar
+                'data' => $productoBuscar // Manda al js con los datos obtenidos
             ]);
             return;
         }catch(Exception $e){
