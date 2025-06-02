@@ -6,6 +6,7 @@ use MVC\Router;
 use Controllers\AppController;
 use Controllers\ClienteController;
 use Controllers\ProductoController;
+use Controllers\TiendaController;
 
 $router = new Router();
 $router->setBaseURL('/' . $_ENV['APP_NAME']);
@@ -26,6 +27,9 @@ $router->post('/productos/guardarAPI', [ProductoController::class, 'guardarAPI']
 $router->get('/productos/buscarAPI', [ProductoController::class, 'buscarAPI']);
 $router->post('/productos/modificarAPI', [ProductoController::class, 'modificarAPI']);
 $router->get('/productos/eliminar', [ProductoController::class, 'EliminarAPI']);
+
+// RUTAS DE TIENDA
+$router->get('/tienda', [TiendaController::class, 'index']);
 
 // Comprueba y valida las rutas, que existan y les asigna las funciones del Controlador
 $router->comprobarRutas();
