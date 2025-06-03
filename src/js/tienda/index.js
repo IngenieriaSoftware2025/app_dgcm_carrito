@@ -18,31 +18,7 @@ const btnVerFacturas = document.getElementById('btnVerFacturas');
 const modalFacturas = new Modal(document.getElementById('modalFacturas'));
 const listaFacturas = document.getElementById('listaFacturas');
 
-const arrancarTienda = () => {
-    // pasamos el usuario
-    const dataDelCliente = localStorage.getItem('clienteSeleccionado');
-    console.log('Cliente escogido:', dataDelCliente);
-
-    if (!dataDelCliente) {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Sin cliente',
-            text: 'Debe seleccionar uno',
-            confirmButtonText: 'Ir a clientes'
-        }).then(() => {
-            window.location.href = '/app_dgcm_carrito/clientes'
-        });
-        return;
-    }
-
-    clienteSeleccionado = JSON.parse(dataDelCliente);
-    nombreCliente.textContent = clienteSeleccionado.nombre;
-
-    cargarProductos();
-    cargaCarritoGuardado();
-}
-
-const cargarProductos = async () => {
+const cargaProductos = async () => {
     try {
         const url = '/app_dgcm_carrito/tienda/obtenerEnJS';
         const respuesta = await fetch(url);
@@ -69,6 +45,7 @@ const muestraProductos = () => {
 
     // Recorre con el array local los productos que trajo de la API
     productosArray.forEach(productoBuscar => {
+        console.log('Producto:', productoBuscar);
         const productoMuestra = `
             <div class = "col-md-4 mb-4">
                 <div class = "card h-100 shadow-sm">
@@ -100,13 +77,13 @@ const muestraProductos = () => {
                             <div class = "input-group mb-2">
                                 <input type = "number"
                                     class = "form-control cantidad-input-js-dar"
-                                    id = "cantidad_${productoBuscar.idProductoJs}"
+                                    id = "cantidad_${productoBuscar.producto_id}"
                                     min = "1"
                                     max = "${productoBuscar.producto_cantidad}"
                                     value = "1"
                                 >
                                 <button class = "btn btn-success agregar-carrito"
-                                    data-id = "${productoBuscar.idProductoJs}">
+                                    data-id = "${productoBuscar.producto_id}">
                                     <i class = "bi bi-cart-plus"></i> Agregar
                                 </button>
                             </div>
@@ -132,10 +109,12 @@ const muestraProductos = () => {
 
 const mandaloAlCarrito = (event) => {
     const proId = parseInt(event.currentTarget.dataset.id);
+    console.log('ID buscado:', proId);
     const cantidadEntrada = document.getElementById(`cantidad_${proId}`);
+    console.log('Elemento encontrado:', cantidadEntrada);
     const cantidad = parseInt(cantidadEntrada.value);
 
-    const pro = productoBuscar.find(p => p.idProductoJs == proId);
+    const pro = productosArray.find(p => p.producto_id == proId);
 
     if (!pro) {
         Swal.fire({
@@ -146,35 +125,36 @@ const mandaloAlCarrito = (event) => {
         return;
     }
 
-    if (cantidad <= 0 || cantidad > productoBuscar.producto_cantidad) {
+    if (cantidad <= 0 || cantidad > pro.producto_cantidad) {
         Swal.fire({
             icon: 'warning',
             title: 'Algo paso en validar cantidad',
             text: 'Quieres mas de lo que hay'
         });
+        return;
     }
 
-    // Veamos si el producto esta en el carrito
+    // ver si el producto esta en el carrito
     const itemYa = carritoArray.find(item => item.idProductoJs == proId);
 
     if (itemYa) {
-        const cantNueva = itemYa.cantidad + cantidad;
-        if (cantNueva > productoBuscar.producto_cantidad) {
+        const cantNueva = itemYa.cantidadProductoJs + cantidad;
+        if (cantNueva > pro.producto_cantidad) {
             Swal.fire({
                 icon: 'warning',
                 title: 'No hay tantos',
-                text: `Solo hay ${productoBuscar.producto_cantidad - itemYa.cantidad} unidades`
+                text: `Solo hay ${pro.producto_cantidad - itemYa.cantidadProductoJs} unidades`
             });
             return;
         }
-        itemYa.cantidad = cantNueva;
+        itemYa.cantidadProductoJs = cantNueva;
     } else {
         carritoArray.push({
             idProductoJs: proId,
-            nombreProductoJs: productoBuscar.producto_nombre,
-            precioProductoJs: parseFloat(productoBuscar.producto_precio),
+            nombreProductoJs: pro.producto_nombre,
+            precioProductoJs: parseFloat(pro.producto_precio),
             cantidadProductoJs: cantidad,
-            productoDisponibleJs: productoBuscar.producto_cantidad
+            productoDisponibleJs: pro.producto_cantidad
         });
     }
 
@@ -184,7 +164,7 @@ const mandaloAlCarrito = (event) => {
     Swal.fire({
         icon: 'success',
         title: 'Agregado al carrito',
-        text: ` ${productoBuscar.producto_nombre}`,
+        text: ` ${pro.producto_nombre}`,
         timer: 1500,
         showConfirmButton: false
     });
@@ -228,9 +208,9 @@ const muestraCarrito = () => {
                             </button>
 
                             <input type = "number" class = "form-control-sm text-center"
-                                value = "${posicion.cantidadProductoJs}"
+                                value = "${productoRecorrido.cantidadProductoJs}"
                                 min = "1"
-                                max = "${posicion.productoDisponibleJs}"
+                                max = "${productoRecorrido.productoDisponibleJs}"
                                 onchange = "cambiarCantidadAqui(${posicion}, this.value)">
                             <button class = "btn btn-outline-secondary btn-sm cambiar-cantidad">
                                 data-posicion = "${posicion}" data-accion = "sumar"
@@ -306,7 +286,7 @@ window.cambiarCantidadAqui = (posicion, cantNueva) => {
         });
         actualizaCarrito();
     } else {
-        item.cantidad = cantidad;
+        item.cantidadProductoJs = cantidad;
         actualizaCarrito();
     }
 };
@@ -316,7 +296,7 @@ const eliminaPosicion = (event) => {
     eliminaPosicionPorIndex(posicion);
 };
 
-const eliminaPosicionPorIndex = (event) => {
+const eliminaPosicionPorIndex = (posicion) => {
     carritoArray.splice(posicion, 1);
     actualizaCarrito();
 };
@@ -331,13 +311,227 @@ const vaciaCarrito = () => {
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
-            carrito = [];
+            carritoArray = [];
             actualizaCarrito();
             Swal.fire('Carrito vacio', '', 'success');
         }
     });
 };
 
-// Eventos
-document.addEventListener('DOMContentLoaded', arrancarTienda);
+const finalizaCompra = async () => {
+    if (carritoArray.length === 0) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Carrito vacío',
+            text: 'Debe agregar al menos un producto al carrito'
+        });
+        return;
+    }
+
+    const total = carritoArray.reduce((sum, item) => sum + (item.precioProductoJs * item.cantidadProductoJs), 0);
+
+    const confirmacion = await Swal.fire({
+        title: '¿Finalizar compra?',
+        html: `
+            <p>Cliente: <strong>${clienteSeleccionado.nombre}</strong></p>
+            <p>Total: <strong>Q ${total.toFixed(2)}</strong></p>
+            <p>¿Desea proceder con la compra?</p>
+        `,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, comprar',
+        cancelButtonText: 'Cancelar'
+    });
+
+    if (confirmacion.isConfirmed) {
+        try {
+
+            const productosParaPHP = carritoArray.map(item => ({
+                producto_id: item.idProductoJs,
+                cantidad: item.cantidadProductoJs,
+                precio: item.precioProductoJs,
+                nombre: item.nombreProductoJs
+            }));
+
+            const url = '/app_dgcm_carrito/tienda/finalizarCompra';
+            const config = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    cliente_id: clienteSeleccionado.id,
+                    productos: JSON.stringify(productosParaPHP),
+                    total: total
+                })
+            };
+
+            const response = await fetch(url, config);
+            const datos = await response.json();
+
+            if (datos.codigo === 1) {
+                await Swal.fire({
+                    icon: 'success',
+                    title: '¡Compra realizada!',
+                    text: `Factura #${datos.factura_id} generada exitosamente`,
+                    timer: 3000
+                });
+
+                // Limpia carrito y cerrar modal
+                carritoArray = [];
+                localStorage.removeItem(`carrito_${clienteSeleccionado.id}`);
+                actualizaCarrito();
+                modalCarrito.hide();
+
+                // Recargar productos para actualizar stock
+                cargaProductos();
+            } else {
+                throw new Error(datos.mensaje);
+            }
+
+        } catch (error) {
+            console.error('Error al finalizar compra:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: error.message || 'No se pudo procesar la compra'
+            });
+        }
+    }
+};
+
+const guardaCarrito = () => {
+    localStorage.setItem(`carrito_${clienteSeleccionado.id}`, JSON.stringify(carritoArray));
+};
+
+const cargaCarritoGuardado = () => {
+    const carritoGuardado = localStorage.getItem(`carrito_${clienteSeleccionado.id}`);
+    if (carritoGuardado) {
+        carritoArray = JSON.parse(carritoGuardado);
+        actualizaCarrito();
+    }
+};
+
+const arrancarTienda = () => {
+    // pasamos el usuario
+    const dataDelCliente = localStorage.getItem('clienteSeleccionado');
+    console.log('Cliente escogido:', dataDelCliente);
+
+    if (!dataDelCliente) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Sin cliente',
+            text: 'Debe seleccionar uno',
+            confirmButtonText: 'Ir a clientes'
+        }).then(() => {
+            window.location.href = '/app_dgcm_carrito/clientes'
+        });
+        return;
+    }
+
+    clienteSeleccionado = JSON.parse(dataDelCliente);
+    nombreCliente.textContent = clienteSeleccionado.nombre;
+
+    cargaProductos();
+    cargaCarritoGuardado();
+}
+
+const verFacturas = async () => {
+    try {
+        const url = `/app_dgcm_carrito/tienda/obtenerFacturas?cliente_id=${clienteSeleccionado.id}`;
+        const response = await fetch(url);
+        const datos = await response.json();
+
+        if (datos.codigo === 1) {
+            mostrarListaFacturas(datos.data);
+            modalFacturas.show();
+        } else {
+            throw new Error(datos.mensaje);
+        }
+    } catch (error) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudieron cargar las facturas'
+        });
+    }
+};
+
+const mostrarListaFacturas = (facturas) => {
+    listaFacturas.innerHTML = '';
+
+    if (facturas.length === 0) {
+        listaFacturas.innerHTML = '<p class="text-center">No hay facturas</p>';
+        return;
+    }
+
+    facturas.forEach(factura => {
+        listaFacturas.innerHTML += `
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5>Factura #${factura.factura_id}</h5>
+                    <p>Fecha: ${factura.fecha_emision}</p>
+                    <p>Total: Q ${parseFloat(factura.total).toFixed(2)}</p>
+                    <button class="btn btn-info" onclick="verDetalle(${factura.factura_id})">
+                        Ver Detalle
+                    </button>
+                </div>
+            </div>
+        `;
+    });
+};
+
+const verDetalle = async (facturaId) => {
+    try {
+        const url = `/app_dgcm_carrito/tienda/obtenerDetalleFactura?id=${facturaId}`;
+        const response = await fetch(url);
+        const datos = await response.json();
+
+        if (datos.codigo === 1) {
+            const { factura, detalle } = datos.data;
+
+            let detalleHTML = `<h4>Factura #${factura.factura_id}</h4>`;
+            detalleHTML += `<p>Cliente: ${factura.cliente_nombres} ${factura.cliente_apellidos}</p>`;
+            detalleHTML += `<p>Fecha: ${factura.fecha_emision}</p>`;
+            detalleHTML += `<table class="table"><thead><tr><th>Producto</th><th>Cantidad</th><th>Precio</th><th>Subtotal</th></tr></thead><tbody>`;
+
+            detalle.forEach(item => {
+                const subtotal = item.cantidad * item.precio_unitario;
+                detalleHTML += `
+                    <tr>
+                        <td>${item.producto_nombre}</td>
+                        <td>${item.cantidad}</td>
+                        <td>Q ${parseFloat(item.precio_unitario).toFixed(2)}</td>
+                        <td>Q ${subtotal.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+
+            detalleHTML += `</tbody></table>`;
+            detalleHTML += `<h5>Total: Q ${parseFloat(factura.total).toFixed(2)}</h5>`;
+
+            Swal.fire({
+                title: 'Detalle de Factura',
+                html: detalleHTML,
+                width: '80%',
+                confirmButtonText: 'Cerrar'
+            });
+        }
+    } catch (error) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo cargar el detalle'
+        });
+    }
+};
+
+// Evento
+btnVerCarrito.addEventListener('click', () => modalCarrito.show());
 btnVaciarCarrito.addEventListener('click', vaciaCarrito);
+btnFinalizarCompra.addEventListener('click', finalizaCompra);
+btnVerFacturas.addEventListener('click', verFacturas);
+
+// Al cargar la página
+document.addEventListener('DOMContentLoaded', arrancarTienda);
+window.verDetalle = verDetalle;

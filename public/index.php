@@ -31,6 +31,9 @@ $router->get('/productos/eliminar', [ProductoController::class, 'EliminarAPI']);
 // RUTAS DE TIENDA
 $router->get('/tienda', [TiendaController::class, 'index']);
 $router->get('/tienda/obtenerEnJS', [TiendaController::class, 'buscarAPI']);
+$router->post('/tienda/finalizarCompra', [TiendaController::class, 'finalizarCompra']);
+$router->get('/tienda/facturas', [TiendaController::class, 'obtenerFacturas']);
+$router->get('/tienda/detalle', [TiendaController::class, 'obtenerDetalleFactura']);
 
 // Comprueba y valida las rutas, que existan y les asigna las funciones del Controlador
 $router->comprobarRutas();
