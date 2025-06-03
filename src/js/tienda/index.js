@@ -91,7 +91,7 @@ const muestraProductos = () => {
                 :
                 `
                             <button class = "btn btn-secondary" disabled>
-                                <i class = "bi bi-x-circle"></i>No disponible
+                                <i class = "bi bi-x-circle"></i> No disponible
                             </button>
                         `}
                     </div>
@@ -202,27 +202,34 @@ const muestraCarrito = () => {
                     
                     <div class = "col-md-3">
                         <div class = "input-group">
-                            <button class = "btn btn-outline-secondary btn-sm cambiar-cantidad">
-                                data-posicion = "${posicion}" data-accion = "restar">
+                            <button class = "btn btn-outline-secondary btn-sm cambiar-cantidad"
+                                data-posicion = "${posicion}" 
+                                data-accion = "restar">
                                 -
                             </button>
 
-                            <input type = "number" class = "form-control-sm text-center"
+                            <input type = "number" 
+                                class = "form-control form-control-sm text-center"
                                 value = "${productoRecorrido.cantidadProductoJs}"
                                 min = "1"
                                 max = "${productoRecorrido.productoDisponibleJs}"
                                 onchange = "cambiarCantidadAqui(${posicion}, this.value)">
-                            <button class = "btn btn-outline-secondary btn-sm cambiar-cantidad">
-                                data-posicion = "${posicion}" data-accion = "sumar"
+                                
+                            <button class = "btn btn-outline-secondary btn-sm cambiar-cantidad"
+                                data-posicion = "${posicion}" 
+                                data-accion = "sumar">
                                 +
                             </button>
                         </div>
                     </div>
+                    
                     <div class = "col-md-2">
                         <strong>Q ${subtotal.toFixed(2)}</strong>
                     </div>
+                    
                     <div class = "col-md-1">
-                        <button class = "btn btn-danger btn-sm eliminar-posicion" data-posicion = "${posicion}">
+                        <button class = "btn btn-danger btn-sm eliminar-posicion" 
+                            data-posicion = "${posicion}">
                             <i class = "bi bi-trash"></i>
                         </button>
                     </div>

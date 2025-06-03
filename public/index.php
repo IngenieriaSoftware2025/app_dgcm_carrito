@@ -1,4 +1,4 @@
-<?php 
+<?php
 require_once __DIR__ . '/../includes/app.php';
 
 
@@ -11,7 +11,7 @@ use Controllers\TiendaController;
 $router = new Router();
 $router->setBaseURL('/' . $_ENV['APP_NAME']);
 
-$router->get('/', [AppController::class,'index']);
+$router->get('/', [AppController::class, 'index']);
 
 // Rutas de Clientes
 $router->get('/clientes', [ClienteController::class, 'index']);
@@ -32,8 +32,8 @@ $router->get('/productos/eliminar', [ProductoController::class, 'EliminarAPI']);
 $router->get('/tienda', [TiendaController::class, 'index']);
 $router->get('/tienda/obtenerEnJS', [TiendaController::class, 'buscarAPI']);
 $router->post('/tienda/finalizarCompra', [TiendaController::class, 'finalizarCompra']);
-$router->get('/tienda/facturas', [TiendaController::class, 'obtenerFacturas']);
-$router->get('/tienda/detalle', [TiendaController::class, 'obtenerDetalleFactura']);
+$router->get('/tienda/obtenerFacturas', [TiendaController::class, 'obtenerFacturas']);
+$router->get('/tienda/obtenerDetalleFactura', [TiendaController::class, 'obtenerDetalleFactura']);
 
 // Comprueba y valida las rutas, que existan y les asigna las funciones del Controlador
 $router->comprobarRutas();

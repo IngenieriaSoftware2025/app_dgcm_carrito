@@ -122,6 +122,15 @@ class TiendaController extends ActiveRecord
 
         try {
             $cliente_id = $_GET['cliente_id'] ?? null;
+            if (!$cliente_id) {
+                http_response_code(400);
+                echo json_encode([
+                    'codigo' => 0,
+                    'mensaje' => 'ID de cliente requerido'
+                ]);
+                return;
+            }
+
             $facturas = Facturas::obtenerFacturasConDetalle($cliente_id);
 
             http_response_code(200);

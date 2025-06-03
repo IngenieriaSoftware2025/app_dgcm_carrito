@@ -36,6 +36,7 @@ VALUES("Pala", "Ingeniero", 3000, 8);
 
 SELECT * FROM productos
 
+select * from facturas
 CREATE TABLE facturas (
     factura_id SERIAL PRIMARY KEY,
     cliente_id INTEGER NOT NULL,
@@ -48,6 +49,7 @@ ALTER TABLE facturas
     ADD CONSTRAINT FOREIGN KEY (cliente_id) 
     REFERENCES clientes CONSTRAINT fk_facturas_clientes;
     
+    select * from detalle_facturas
 CREATE TABLE detalle_facturas (
     detalle_id SERIAL PRIMARY KEY,
     factura_id INTEGER NOT NULL,
